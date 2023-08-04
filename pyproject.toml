@@ -1,0 +1,46 @@
+[tool.poetry]
+name = "trakt-to-serializd"
+version = "0.0.1"
+description = "Migrate watched shows from Trakt to Serializd"
+authors = ["Velocidensity"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "trakt_to_serializd"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+serializd-py = {git = "https://github.com/Velocidensity/serializd-py"}
+rich = "^13.5.2"
+httpx = "^0.24.1"
+platformdirs = "^3.10.0"
+click = "^8.1.6"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.10.1"
+pre-commit = "^2.20.0"
+flake8 = "^5.0.4"
+flake8-pyproject = "^1.1.0.post0"
+mypy = "^0.991"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+trakt_to_serializd = "trakt_to_serializd.__main__:cli"
+
+[tool.flake8]
+max-line-length = 120
+
+[tool.isort]
+line_length = 120
+
+[tool.pyright]
+venvPath = [".venv"]
+
+[tool.mypy]
+pretty = true
+mypy_path = "$MYPY_CONFIG_FILE_DIR/stubs"
