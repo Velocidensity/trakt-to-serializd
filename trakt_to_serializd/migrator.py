@@ -48,8 +48,9 @@ class Migrator:
             self.logger.error('Failed to log in to Serializd, quitting')
             sys.exit(1)
 
-        self.logger.info('Fetching watched show data from Trakt')
+        self.logger.debug('Fetching user info from Trakt')
         username = self.trakt.get_user_info()['user']['username']
+        self.logger.info('Fetching watched show data from Trakt')
         watched_data = self.trakt.get_watched_shows(username)
 
         for watched_show in track(
