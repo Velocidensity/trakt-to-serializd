@@ -41,6 +41,7 @@ class CredentialHelper(UserDict):
 
     @classmethod
     def remove_folder(cls):
+        """Removes credential directory"""
         if cls.directory.exists():
             cls.directory.rmdir()
 
