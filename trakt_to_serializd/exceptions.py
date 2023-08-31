@@ -10,4 +10,3 @@ class MigratorError(Exception):
 
 class TraktError(MigratorError):
     """Trakt error exception"""
-    pass

@@ -21,9 +21,8 @@ optional = true
 [tool.poetry.group.dev.dependencies]
 isort = "^5.10.1"
 pre-commit = "^2.20.0"
-flake8 = "^5.0.4"
-flake8-pyproject = "^1.1.0.post0"
 mypy = "^0.991"
+ruff = "^0.0.286"
 
 [build-system]
 requires = ["poetry-core"]
@@ -32,8 +31,25 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 trakt_to_serializd = "trakt_to_serializd.__main__:cli"
 
-[tool.flake8]
-max-line-length = 120
+[tool.ruff]
+select = [
+    "A",   # flake8-builtins
+    "BLE", # flake8-blind-except
+    "C4",  # flake8-comprehensions
+    "E",   # pycodestyle (Error)
+    "F",   # pyflakes
+    "INP", # flake8-no-pep420
+    "ISC", # flake8-implicit-str-concat
+    "N",   # pep8-naming
+    "PIE", # flake8-pie
+    "RSE", # flake8-raise
+    "SIM", # flake8-simplify
+    "W"    # pycodestyle (Warning)
+]
+line-length = 120
+ignore = [
+    "SIM105", # suppressible-exception
+]
 
 [tool.isort]
 line_length = 120

@@ -1,13 +1,12 @@
 repos:
   - repo: https://github.com/pycqa/isort
-    rev: 5.10.1
+    rev: 5.12.0
     hooks:
       - id: isort
         name: isort (python)
 
-  - repo: https://github.com/pycqa/flake8
-    rev: 5.0.4
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.286
     hooks:
-      - id: flake8
-        additional_dependencies:
-          - Flake8-pyproject==1.1.0.post0
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
