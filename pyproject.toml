@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "trakt-to-serializd"
-version = "0.0.1"
+version = "0.0.2"
 description = "Migrate watched shows from Trakt to Serializd"
 authors = ["Velocidensity"]
 license = "MIT"

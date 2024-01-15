@@ -73,13 +73,13 @@ class Migrator:
                     show_id=watched_show['show']['ids']['tmdb'],
                     season_number=watched_season['number']
                 )
-                if len(season_info['episodes']) == len(watched_season['episodes']):
-                    complete_seasons.append(season_info['seasonId'])
+                if len(season_info.episodes) == len(watched_season['episodes']):
+                    complete_seasons.append(season_info.seasonId)
                     continue
 
                 self.serializd.log_episodes(
                     show_id=watched_show['show']['ids']['tmdb'],
-                    season_id=season_info['seasonId'],
+                    season_id=season_info.seasonId,
                     episode_numbers=[ep['number'] for ep in watched_season['episodes']]
                 )
 
@@ -115,7 +115,7 @@ class Migrator:
 
         if token := self.serializd_auth.get('token'):
             self.logger.debug('Checking Serializd token')
-            if self.serializd.check_token(token):
+            if self.serializd.check_token(token).isValid:
                 self.serializd.load_token(token, check=False)
 
         if not self.serializd.access_token:
