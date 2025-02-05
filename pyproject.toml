@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "trakt-to-serializd"
-version = "0.0.2"
+version = "0.0.3"
 description = "Migrate watched shows from Trakt to Serializd"
 authors = ["Velocidensity"]
 license = "MIT"
@@ -32,7 +32,7 @@ build-backend = "poetry.core.masonry.api"
 trakt_to_serializd = "trakt_to_serializd.__main__:cli"
 
 [tool.ruff]
-select = [
+lint.select = [
     "A",   # flake8-builtins
     "BLE", # flake8-blind-except
     "C4",  # flake8-comprehensions
@@ -46,10 +46,10 @@ select = [
     "SIM", # flake8-simplify
     "W"    # pycodestyle (Warning)
 ]
-line-length = 120
-ignore = [
+lint.ignore = [
     "SIM105", # suppressible-exception
 ]
+line-length = 120
 
 [tool.isort]
 line_length = 120
