@@ -6,7 +6,7 @@ from rich.logging import RichHandler
 from rich.progress import track
 from rich.prompt import Prompt
 from serializd import SerializdClient
-from serializd.exceptions import LoginError
+from serializd.exceptions import EmptySeasonError, LoginError
 
 from trakt_to_serializd.credentials import CredentialHelper
 from trakt_to_serializd.exceptions import TraktError
@@ -69,11 +69,20 @@ class Migrator:
                     'Fetching season info for season %d',
                     watched_season['number']
                 )
-                season_info = self.serializd.get_season(
-                    show_id=watched_show['show']['ids']['tmdb'],
-                    season_number=watched_season['number']
-                )
-                if len(season_info.episodes) == len(watched_season['episodes']):
+                mark_full_season = False
+                try:
+                    season_info = self.serializd.get_season(
+                        show_id=watched_show['show']['ids']['tmdb'],
+                        season_number=watched_season['number']
+                    )
+                    mark_full_season = len(season_info.episodes) == len(watched_season['episodes'])
+                except EmptySeasonError:
+                    self.logger.warning(
+                        'Serializd returned no episodes, marking entire season as watched'
+                    )
+                    mark_full_season = True
+
+                if mark_full_season:
                     complete_seasons.append(season_info.seasonId)
                     continue
 
