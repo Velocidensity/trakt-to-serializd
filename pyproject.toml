@@ -9,7 +9,7 @@ packages = [{include = "trakt_to_serializd"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-serializd-py = {git = "https://github.com/Velocidensity/serializd-py"}
+serializd-py = {git = "https://github.com/VanillaChief/serializd-py"}
 rich = "^13.5.2"
 httpx = "^0.24.1"
 platformdirs = "^3.10.0"

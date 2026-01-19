@@ -145,3 +145,125 @@ class TraktAPI:
             raise TraktError(f'Trakt returned status code: {resp.status_code}')
 
         return resp.json()
+
+    def get_episode_history(self, username: str, show_id: int | None = None, limit: int = 10000) -> list:
+        """
+        Fetches episode watch history for a user, including rewatches.
+        
+        Each watch event is returned separately, so if an episode was watched
+        3 times, it appears 3 times with different watched_at timestamps.
+
+        Args:
+            username: Trakt username
+            show_id: Optional TMDB show ID to filter by
+            limit: Maximum number of history entries to return
+
+        Returns:
+            list: List of history entries with episode and watched_at data
+
+        Raises:
+            TraktError: Unexpected response
+        """
+        url = f'/users/{username}/history/episodes'
+        params = {'limit': limit}
+        
+        resp = self.session.get(url, params=params)
+        if not resp.is_success:
+            self.logger.error(f'Trakt returned status code: {resp.status_code}')
+            raise TraktError(f'Trakt returned status code: {resp.status_code}')
+
+        history = resp.json()
+        
+        # Filter by show if specified
+        if show_id:
+            history = [h for h in history if h.get('show', {}).get('ids', {}).get('tmdb') == show_id]
+        
+        return history
+
+    def get_full_episode_history(self, username: str) -> dict:
+        """
+        Fetches complete episode watch history and organizes it by show/season/episode.
+        
+        Returns data structure compatible with the migrator, but with multiple
+        watch events per episode for rewatch support.
+
+        Args:
+            username: Trakt username
+
+        Returns:
+            dict: Organized watch data with all watch events per episode
+                  Structure: {show_id: {season_num: {ep_num: [watched_at_dates]}}}
+
+        Raises:
+            TraktError: Unexpected response
+        """
+        self.logger.info('Fetching full episode history from Trakt (this may take a while)...')
+        
+        all_history = []
+        page = 1
+        per_page = 1000
+        
+        while True:
+            resp = self.session.get(
+                f'/users/{username}/history/episodes',
+                params={'page': page, 'limit': per_page}
+            )
+            if not resp.is_success:
+                self.logger.error(f'Trakt returned status code: {resp.status_code}')
+                raise TraktError(f'Trakt returned status code: {resp.status_code}')
+            
+            batch = resp.json()
+            if not batch:
+                break
+                
+            all_history.extend(batch)
+            self.logger.info(f'Fetched {len(all_history)} history entries...')
+            
+            # Check if there are more pages
+            total_pages = int(resp.headers.get('x-pagination-page-count', 1))
+            if page >= total_pages:
+                break
+            page += 1
+        
+        self.logger.info(f'Total: {len(all_history)} watch events')
+        
+        # Organize by show -> season -> episode -> list of watch dates
+        # Use a set to deduplicate identical timestamps (sync issues)
+        organized = {}
+        for entry in all_history:
+            show = entry.get('show', {})
+            episode = entry.get('episode', {})
+            watched_at = entry.get('watched_at')
+            
+            show_id = show.get('ids', {}).get('tmdb')
+            season_num = episode.get('season')
+            episode_num = episode.get('number')
+            
+            if not all([show_id, season_num is not None, episode_num, watched_at]):
+                continue
+            
+            if show_id not in organized:
+                organized[show_id] = {
+                    'show': show,
+                    'seasons': {}
+                }
+            
+            if season_num not in organized[show_id]['seasons']:
+                organized[show_id]['seasons'][season_num] = {}
+            
+            if episode_num not in organized[show_id]['seasons'][season_num]:
+                organized[show_id]['seasons'][season_num][episode_num] = set()
+            
+            # Extract date part only (YYYY-MM-DD) to dedupe same-day rewatches
+            date_part = watched_at[:10] if len(watched_at) >= 10 else watched_at
+            organized[show_id]['seasons'][season_num][episode_num].add(date_part)
+        
+        # Convert sets to sorted lists
+        for show_id in organized:
+            for season_num in organized[show_id]['seasons']:
+                for episode_num in organized[show_id]['seasons'][season_num]:
+                    organized[show_id]['seasons'][season_num][episode_num] = sorted(
+                        organized[show_id]['seasons'][season_num][episode_num]
+                    )
+        
+        return organized
