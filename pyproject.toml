@@ -1,35 +1,51 @@
-[tool.poetry]
+[project]
 name = "trakt-to-serializd"
 version = "0.0.3"
 description = "Migrate watched shows from Trakt to Serializd"
-authors = ["Velocidensity"]
-license = "MIT"
+authors = [{ name = "Velocidensity" }]
+requires-python = ">=3.10,<4"
 readme = "README.md"
-packages = [{include = "trakt_to_serializd"}]
+license = "MIT"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "serializd-py",
+    "rich",
+    "httpx",
+    "platformdirs",
+    "click",
+    "pydantic==2.13.4",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-serializd-py = {git = "https://github.com/Velocidensity/serializd-py"}
-rich = "^13.5.2"
-httpx = "^0.24.1"
-platformdirs = "^3.10.0"
-click = "^8.1.6"
+[project.scripts]
+trakt_to_serializd = "trakt_to_serializd.__main__:cli"
 
-[tool.poetry.group.dev]
-optional = true
+[dependency-groups]
+dev = [
+    "isort",
+    "pre-commit",
+    "mypy",
+    "ruff",
+]
 
-[tool.poetry.group.dev.dependencies]
-isort = "^5.10.1"
-pre-commit = "^2.20.0"
-mypy = "^0.991"
-ruff = "^0.0.286"
+[tool.uv]
+
+[tool.uv.sources]
+serializd-py = { git = "https://github.com/Velocidensity/serializd-py" }
+
+[tool.uv.build-backend]
+module-name = ["trakt_to_serializd"]
+module-root = ""
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-trakt_to_serializd = "trakt_to_serializd.__main__:cli"
+requires = ["uv_build>=0.11.2,<0.12.0"]
+build-backend = "uv_build"
 
 [tool.ruff]
 lint.select = [
